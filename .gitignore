@@ -1,0 +1,5 @@
+node_modules/
+catalog_db.json
+.system_generated/
+.DS_Store
+*.log

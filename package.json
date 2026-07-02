@@ -1,0 +1,15 @@
+{
+  "name": "print-catalog-3d",
+  "version": "1.0.0",
+  "description": "Catalogo de Modelos Impressao 3D",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
+  },
+  "author": "Antigravity",
+  "license": "ISC"
+}
