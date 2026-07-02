@@ -575,6 +575,7 @@ function openModal(modelId) {
   document.getElementById('modal-tags').value = model.tags.join(', ');
   document.getElementById('modal-notes').value = model.notes || '';
   document.getElementById('modal-custom-category').value = model.customCategory || '';
+  document.getElementById('modal-absolute-path').value = model.absolutePath || '';
 
   // Preencher calculadora de custos (ou carregar padrões)
   document.getElementById('calc-weight').value = model.weightGrams !== undefined && model.weightGrams !== 0 ? model.weightGrams : '';
@@ -1037,4 +1038,35 @@ function calculateCosts() {
 
 function formatCurrency(value) {
   return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+}
+
+// Copiar caminho absoluto da pasta para a área de transferência
+function copyAbsolutePath() {
+  const pathInput = document.getElementById('modal-absolute-path');
+  if (!pathInput || !pathInput.value) return;
+
+  pathInput.select();
+  pathInput.setSelectionRange(0, 99999); // Suporte para dispositivos móveis
+
+  navigator.clipboard.writeText(pathInput.value)
+    .then(() => {
+      // Feedback visual no botão de copiar
+      const btn = document.querySelector('[onclick="copyAbsolutePath()"]');
+      const icon = btn.querySelector('.material-symbols-rounded');
+      const originalText = icon.innerText;
+      
+      icon.innerText = 'check';
+      btn.style.borderColor = 'var(--color-success)';
+      btn.style.color = 'var(--color-success)';
+      
+      setTimeout(() => {
+        icon.innerText = originalText;
+        btn.style.borderColor = '';
+        btn.style.color = '';
+      }, 1500);
+    })
+    .catch(err => {
+      console.error('Falha ao copiar texto:', err);
+      alert('Não foi possível copiar o caminho automaticamente. Selecione o texto e copie manualmente.');
+    });
 }

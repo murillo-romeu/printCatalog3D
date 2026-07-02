@@ -270,8 +270,14 @@ app.get('/api/models', async (req, res) => {
     
     const paginatedResult = result.slice(startIndex, endIndex);
 
+    // Injetar o absolutePath dinamicamente com contra-barras do Windows
+    const modelsWithAbsPath = paginatedResult.map(m => ({
+      ...m,
+      absolutePath: path.join(ROOT_DIR, m.relativePath).replace(/\//g, '\\')
+    }));
+
     res.json({
-      models: paginatedResult,
+      models: modelsWithAbsPath,
       totalCount: result.length,
       page,
       limit,
