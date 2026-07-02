@@ -360,11 +360,21 @@ app.post('/api/models/:id/open', async (req, res) => {
       return res.status(403).json({ error: 'Acesso negado' });
     }
 
+    // Verificar se a pasta fisicamente existe antes de chamar o Explorer
+    try {
+      await fs.access(fullPath);
+    } catch (e) {
+      return res.status(404).json({ error: 'A pasta do modelo não foi encontrada no disco' });
+    }
+
     console.log(`Abrindo pasta no Explorer: ${fullPath}`);
-    // No Windows, abre o explorer selecionando a pasta ou arquivo
+    
+    // No Windows, o explorer.exe retorna exit code 1 se uma instância do explorer já estiver rodando
+    // e capturar a ação, o que o Node.js interpreta como erro.
+    // Portanto, se a pasta existe, nós permitimos código 1 como sucesso.
     exec(`explorer.exe "${fullPath}"`, (err) => {
-      if (err) {
-        console.error(err);
+      if (err && err.code !== 1) {
+        console.error('Erro ao executar explorer.exe:', err);
         return res.status(500).json({ error: 'Falha ao abrir o Windows Explorer' });
       }
       res.json({ success: true });
