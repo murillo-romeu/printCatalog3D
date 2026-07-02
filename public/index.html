@@ -267,6 +267,81 @@
 
           <hr class="divider">
 
+          <!-- Calculadora de Custos -->
+          <div class="calculator-section">
+            <div class="section-title-row" id="toggle-calc" style="cursor: pointer;">
+              <h3>📐 Calculadora de Custos e Venda</h3>
+              <span class="material-symbols-rounded arrow-icon" id="arrow-calc">expand_more</span>
+            </div>
+            
+            <div class="calculator-body" id="calculator-body" style="display: none; margin-top: 12px;">
+              <div class="calculator-grid">
+                <div class="form-group">
+                  <label for="calc-weight">Peso do Modelo (g):</label>
+                  <input type="number" id="calc-weight" min="0" placeholder="Ex: 150" onchange="saveMetadata()">
+                </div>
+                <div class="form-group">
+                  <label for="calc-spool-price">Preço Filamento (R$/kg):</label>
+                  <input type="number" id="calc-spool-price" min="0" placeholder="Ex: 120" onchange="saveMetadata()">
+                </div>
+                <div class="form-group">
+                  <label for="calc-time">Tempo Impressão (h):</label>
+                  <input type="number" id="calc-time" min="0" step="0.1" placeholder="Ex: 5.5" onchange="saveMetadata()">
+                </div>
+                <div class="form-group">
+                  <label for="calc-power">Consumo Impressora (W):</label>
+                  <input type="number" id="calc-power" min="0" placeholder="Ex: 150" onchange="saveMetadata()">
+                </div>
+                <div class="form-group">
+                  <label for="calc-energy">Tarifa Energia (R$/kWh):</label>
+                  <input type="number" id="calc-energy" min="0" step="0.01" placeholder="Ex: 0.85" onchange="saveMetadata()">
+                </div>
+                <div class="form-group">
+                  <label for="calc-labor">Hora de Trabalho (R$/h):</label>
+                  <input type="number" id="calc-labor" min="0" placeholder="Ex: 5" onchange="saveMetadata()">
+                </div>
+                <div class="form-group">
+                  <label for="calc-other">Outros Custos (R$):</label>
+                  <input type="number" id="calc-other" min="0" placeholder="Ex: 2.00" onchange="saveMetadata()">
+                </div>
+                <div class="form-group">
+                  <label for="calc-markup">Lucro / Margem (%):</label>
+                  <input type="number" id="calc-markup" min="0" placeholder="Ex: 100" onchange="saveMetadata()">
+                </div>
+              </div>
+
+              <!-- Painel de Resultados -->
+              <div class="calc-results">
+                <div class="result-row">
+                  <span>Custo do Filamento:</span>
+                  <strong id="res-filament">R$ 0,00</strong>
+                </div>
+                <div class="result-row">
+                  <span>Custo de Energia:</span>
+                  <strong id="res-energy">R$ 0,00</strong>
+                </div>
+                <div class="result-row">
+                  <span>Custo de Mão de Obra:</span>
+                  <strong id="res-labor">R$ 0,00</strong>
+                </div>
+                <div class="result-row">
+                  <span>Outros Custos:</span>
+                  <strong id="res-other">R$ 0,00</strong>
+                </div>
+                <div class="result-row total">
+                  <span>Custo de Produção:</span>
+                  <strong id="res-total">R$ 0,00</strong>
+                </div>
+                <div class="result-row sale">
+                  <span>Preço de Venda Sugerido:</span>
+                  <strong id="res-sale">R$ 0,00</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <hr class="divider">
+
           <!-- Lista de Arquivos Físicos na Pasta -->
           <div class="folder-files-section">
             <h3>Arquivos da Pasta</h3>

@@ -89,6 +89,25 @@ document.addEventListener('DOMContentLoaded', () => {
     toggleCatsBtn.classList.toggle('collapsed');
   });
 
+  // Toggle do colapso da calculadora
+  const toggleCalcBtn = document.getElementById('toggle-calc');
+  const calcBodyEl = document.getElementById('calculator-body');
+  const arrowCalc = document.getElementById('arrow-calc');
+  toggleCalcBtn.addEventListener('click', () => {
+    const isHidden = calcBodyEl.style.display === 'none';
+    calcBodyEl.style.display = isHidden ? 'block' : 'none';
+    arrowCalc.classList.toggle('collapsed', !isHidden);
+  });
+
+  // Vincular eventos de digitação nos inputs para recálculo instantâneo
+  const calcInputs = ['calc-weight', 'calc-spool-price', 'calc-time', 'calc-power', 'calc-energy', 'calc-labor', 'calc-other', 'calc-markup'];
+  calcInputs.forEach(id => {
+    const input = document.getElementById(id);
+    if (input) {
+      input.addEventListener('input', calculateCosts);
+    }
+  });
+
   // Carregar dados iniciais
   fetchModels();
 });
@@ -274,11 +293,28 @@ async function saveMetadata() {
   const notes = document.getElementById('modal-notes').value;
   const customCategory = document.getElementById('modal-custom-category').value.trim();
 
+  const weightGrams = parseFloat(document.getElementById('calc-weight').value) || 0;
+  const filamentPriceKg = parseFloat(document.getElementById('calc-spool-price').value) || 0;
+  const printTimeHours = parseFloat(document.getElementById('calc-time').value) || 0;
+  const printerPowerW = parseFloat(document.getElementById('calc-power').value) || 0;
+  const energyPriceKwh = parseFloat(document.getElementById('calc-energy').value) || 0;
+  const laborRateHour = parseFloat(document.getElementById('calc-labor').value) || 0;
+  const otherCosts = parseFloat(document.getElementById('calc-other').value) || 0;
+  const profitMarkup = parseFloat(document.getElementById('calc-markup').value) || 0;
+
   const payload = {
     tags,
     notes,
     customCategory,
-    rating: state.selectedModel.rating
+    rating: state.selectedModel.rating,
+    weightGrams,
+    filamentPriceKg,
+    printTimeHours,
+    energyPriceKwh,
+    printerPowerW,
+    laborRateHour,
+    otherCosts,
+    profitMarkup
   };
 
   try {
@@ -539,6 +575,23 @@ function openModal(modelId) {
   document.getElementById('modal-tags').value = model.tags.join(', ');
   document.getElementById('modal-notes').value = model.notes || '';
   document.getElementById('modal-custom-category').value = model.customCategory || '';
+
+  // Preencher calculadora de custos (ou carregar padrões)
+  document.getElementById('calc-weight').value = model.weightGrams !== undefined && model.weightGrams !== 0 ? model.weightGrams : '';
+  document.getElementById('calc-spool-price').value = model.filamentPriceKg !== undefined ? model.filamentPriceKg : 120;
+  document.getElementById('calc-time').value = model.printTimeHours !== undefined && model.printTimeHours !== 0 ? model.printTimeHours : '';
+  document.getElementById('calc-power').value = model.printerPowerW !== undefined ? model.printerPowerW : 150;
+  document.getElementById('calc-energy').value = model.energyPriceKwh !== undefined ? model.energyPriceKwh : 0.85;
+  document.getElementById('calc-labor').value = model.laborRateHour !== undefined ? model.laborRateHour : 0;
+  document.getElementById('calc-other').value = model.otherCosts !== undefined ? model.otherCosts : 0;
+  document.getElementById('calc-markup').value = model.profitMarkup !== undefined ? model.profitMarkup : 100;
+  
+  // Recalcular para exibir os resultados na tela imediatamente
+  calculateCosts();
+  
+  // Garantir que a calculadora inicie colapsada
+  document.getElementById('calculator-body').style.display = 'none';
+  document.getElementById('arrow-calc').classList.add('collapsed');
 
   // Configurar Estrelas e Favorito
   updateModalFavoriteButton(model.favorite);
@@ -942,4 +995,46 @@ function destroyThreeJS() {
   threeState.camera = null;
   threeState.controls = null;
   threeState.isInitialized = false;
+}
+
+// --- Lógica da Calculadora de Custos e Vendas ---
+
+function calculateCosts() {
+  if (!state.selectedModel) return;
+
+  const weight = parseFloat(document.getElementById('calc-weight').value) || 0;
+  const spoolPrice = parseFloat(document.getElementById('calc-spool-price').value) || 0;
+  const time = parseFloat(document.getElementById('calc-time').value) || 0;
+  const power = parseFloat(document.getElementById('calc-power').value) || 0;
+  const energy = parseFloat(document.getElementById('calc-energy').value) || 0;
+  const labor = parseFloat(document.getElementById('calc-labor').value) || 0;
+  const other = parseFloat(document.getElementById('calc-other').value) || 0;
+  const markup = parseFloat(document.getElementById('calc-markup').value) || 0;
+
+  // 1. Custo do Filamento: (peso / 1000) * preço do kg
+  const filamentCost = (weight / 1000) * spoolPrice;
+  
+  // 2. Custo de Energia: tempo * (watts / 1000) * preço do kWh
+  const energyCost = time * (power / 1000) * energy;
+  
+  // 3. Custo de Mão de Obra: tempo * preço da hora de trabalho
+  const laborCost = time * labor;
+  
+  // 4. Custo total de produção
+  const totalCost = filamentCost + energyCost + laborCost + other;
+  
+  // 5. Preço sugerido de venda com margem de lucro
+  const salePrice = totalCost * (1 + markup / 100);
+
+  // Atualizar DOM com valores formatados
+  document.getElementById('res-filament').innerText = formatCurrency(filamentCost);
+  document.getElementById('res-energy').innerText = formatCurrency(energyCost);
+  document.getElementById('res-labor').innerText = formatCurrency(laborCost);
+  document.getElementById('res-other').innerText = formatCurrency(other);
+  document.getElementById('res-total').innerText = formatCurrency(totalCost);
+  document.getElementById('res-sale').innerText = formatCurrency(salePrice);
+}
+
+function formatCurrency(value) {
+  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 }

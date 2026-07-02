@@ -319,12 +319,26 @@ app.post('/api/models/:id/metadata', async (req, res) => {
       return res.status(404).json({ error: 'Modelo não encontrado' });
     }
 
-    const { tags, notes, customCategory, rating } = req.body;
+    const { 
+      tags, notes, customCategory, rating,
+      weightGrams, filamentPriceKg, printTimeHours,
+      energyPriceKwh, printerPowerW, laborRateHour,
+      otherCosts, profitMarkup
+    } = req.body;
     
     if (tags !== undefined) model.tags = Array.isArray(tags) ? tags : [];
     if (notes !== undefined) model.notes = notes;
     if (customCategory !== undefined) model.customCategory = customCategory;
     if (rating !== undefined) model.rating = parseInt(rating) || 0;
+
+    if (weightGrams !== undefined) model.weightGrams = parseFloat(weightGrams) || 0;
+    if (filamentPriceKg !== undefined) model.filamentPriceKg = parseFloat(filamentPriceKg) || 0;
+    if (printTimeHours !== undefined) model.printTimeHours = parseFloat(printTimeHours) || 0;
+    if (energyPriceKwh !== undefined) model.energyPriceKwh = parseFloat(energyPriceKwh) || 0;
+    if (printerPowerW !== undefined) model.printerPowerW = parseFloat(printerPowerW) || 0;
+    if (laborRateHour !== undefined) model.laborRateHour = parseFloat(laborRateHour) || 0;
+    if (otherCosts !== undefined) model.otherCosts = parseFloat(otherCosts) || 0;
+    if (profitMarkup !== undefined) model.profitMarkup = parseFloat(profitMarkup) || 0;
 
     await saveDB(db);
     res.json({ success: true, model });
